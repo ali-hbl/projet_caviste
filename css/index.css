@@ -1,0 +1,101 @@
+/***************************************************************GENERAL*/
+body, html{
+	padding:0px;
+	margin:0px;
+}
+
+body{
+	width:100%;
+}
+
+section {
+	width:100%;
+}
+h2{
+	text-align:center;
+	margin:0px;
+	padding:10px;
+}
+/***************************************************************HEADER*/
+header{
+	background-color:black;
+	padding:10px;
+	display:flex;
+	justify-content:space-between;
+}
+
+header form input{
+	padding:10px;
+	border-radius:5px;
+	border:none;
+	margin:0px 5px;
+}
+header button{
+	border-radius:5px;
+	padding:10px 20px;
+	background-color:lightgrey;
+	color:black;
+	border:none;
+}
+header button:hover{
+	color:white;
+	background-color:darkred;
+}
+/***************************************************************TITRE*/
+h1{
+	background-color:darkred;
+	text-align:center;
+	padding:20px;
+	margin:0px;
+	color:white;
+}
+/***************************************************************FILTRES*/
+section#filtres{
+	height:200px;
+}
+
+/***************************************************************GRILLE VINS*/
+section#grilleVins{
+	background-color:darkred;
+	display:flex;
+	flex-wrap:wrap;
+	padding:10px;
+	justify-content:center;
+}
+#grilleVins span{
+	background-color:white;
+	margin:3px;
+	width:150px;
+	height:150px;
+	padding:2px;
+	text-align:center;
+	border: 2px solid transparent;
+	border-radius:5px;
+	
+}
+#grilleVins span:hover{
+	border: 2px solid black;
+}
+#grilleVins span img {
+	max-height:90px;
+	max-width:100%;
+	width:auto;
+	height:auto;
+}
+/***************************************************************CENTRE*/
+section#centre{
+	height:200px;
+}
+
+/***************************************************************CONNECTED*/
+section#connected{
+	height:200px;
+	background-color:black;
+	color:white;
+}
+
+/***************************************************************FOOTER*/
+footer{
+	background-color:#1e1e1e;
+	height:100px;
+}
