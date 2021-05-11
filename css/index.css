@@ -49,9 +49,17 @@ h1{
 	margin:0px;
 	color:white;
 }
+#divJquery{
+	background-color:darkred;
+	text-align:center;
+	padding:5px;
+	margin:0px;
+	color:white;
+}
 /***************************************************************FILTRES*/
 section#filtres{
-	height:200px;	
+	height:200px;
+	
 }
 
 #placement_form{
@@ -61,6 +69,8 @@ section#filtres{
 #menu_deroulant{
 	display : flex;
 }
+
+
 /***************************************************************GRILLE VINS*/
 section#grilleVins{
 	background-color:darkred;
@@ -91,9 +101,9 @@ section#grilleVins{
 }
 /***************************************************************CENTRE*/
 /*section#centre{
-	height:200px;
-}*/
-
+	
+}
+*/
 /***************************************************************CONNECTED*/
 section#connected{
 	height:200px;
