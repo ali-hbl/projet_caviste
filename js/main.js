@@ -25,8 +25,15 @@ let wines = [];
 let user = null;
 let pwd = 123;
 
+let comments = document.querySelector("#commentaires");
+
+//Afficher description
+let divInfoVin = document.querySelector('#infoVin');
+
 let selectCountry= document.querySelector('#country');
 let selectYear= document.querySelector('#year');
+
+let infoVin = document.querySelector("#centre div:first-of-type");
 
 const btFilter = document.querySelector('#btFilter');
 
@@ -74,7 +81,7 @@ function displayAllWines(){
 			displayWines(wines);
 			addFilterCategories(wines, 'year');
 			addFilterCategories(wines, 'country');
-			console.log('displayed');
+			//console.log('displayed');
 		} else {
 			console.log('Bad status: '+this);
 		}
@@ -88,23 +95,33 @@ function displayAllWines(){
  *	@param wineList : objet contenant les vins à afficher
  */
 function displayWines(wineList){
-	console.log(wineList);
+	//hide center
+	showCenter(false);
 	let grilleVins = document.getElementById('grilleVins');
+	if (wineList.length==0){
+		grilleVins.innerHTML ="<p style='color:white;'>Aucun vin trouvé...</p>";
+		return;
+	}
+
 	grilleVins.innerHTML ="";
 	for (key in wineList){
 		let wine = wineList[key];
-		
 		let bloc = createWineBloc(wine.name,wine.picture,wine.id);
 		grilleVins.appendChild(bloc);
+		let animation = anime({
+			  targets: '#grilleVins span',
+			  translateX: 50,
+			  delay: anime.stagger(100) // increase delay by 100ms for each elements.
+		});
 	}
-}
+}	
 
 
-/*	Crée un bloc de prévisualisation d'un vin
- *	@param name : nom du vin à afficher
- *	@param picture : nom de l'image à afficher
- *  @return un node span contenant le nom et l'image du vin
- */
+/**	Crée un bloc de prévisualisation d'un vin
+  *	@param name : nom du vin à afficher
+  *	@param picture : nom de l'image à afficher
+  * @return un node span contenant le nom et l'image du vin
+  */
 function createWineBloc(name,picture,id){
 	let p = document.createElement('p');
 	p.innerText = name;
@@ -117,10 +134,14 @@ function createWineBloc(name,picture,id){
 	
 	//AJOUTER UN EVENT LISTENER POUR QUAND ON CLIQUE SUR LA CASE, ET UTILISER L'ID DU VIN
 	bloc.addEventListener("click",function(){
+		let animation = anime({
+			targets: 'section#centre',
+			translateX: 250,
+			delay: 1000
+		});
 		displayInfo(id);
-		let infoVin = document.querySelector("#centre div:first-of-type");
-		console.log(infoVin);
-		infoVin.style.display = 'block';
+		//console.log(infoVin);
+		
 
 	})
 
@@ -134,27 +155,38 @@ function createWineBloc(name,picture,id){
  *  
  */
 function displayInfo(id){
+	
+	//Récupérer les infos générales du vin, disponibles dans wines déclaré en haut
+	let wineIndex  = null;
+	for(let index in wines){
+		console.log(wines[index].id, id);
+		if (parseInt(wines[index].id)==id){
+			wineIndex = index;
+		}
+	}
+	let wineInfo = wines[wineIndex];
+	//Afficher toutes les images
+	displayImages(id,wineInfo.picture,wineInfo.name);
+	//Afficher tous les commentaires
+	displayComments(id);
+	
+	//todo : SI connecté : affichage note perso
+	
+	//afficher la description et likes
 	let xhr = new XMLHttpRequest();
 	xhr.onload = function(){
 		if (this.status==200){
 			let info = JSON.parse(this.responseText)[0];
-			console.log(info);
-			console.log(info.picture);
-			//Afficher toutes les images
-			displayImages(id,info.picture,info.name);
-			
-			//Afficher description
-			let divInfoVin = document.querySelector('#infoVin');
 			divInfoVin.innerHTML = '<h5 class="card-title">'+info.name+'</h5><p class="card-text">'+info.description+'</p>';
-			divInfoVin.innerHTML += '<p class="card-text">Pays : '+info.country+' - '+info.region+'</p>';
-			divInfoVin.innerHTML += '<p class="card-text">Année : '+info.year+'</p>';
-			divInfoVin.innerHTML += '<p class="card-text">Quantité : '+info.capacity+'cl</p>';
-			divInfoVin.innerHTML += '<p class="card-text">Couleur : '+info.color+'</p>';
-			divInfoVin.innerHTML += '<p class="card-text">Prix : '+info.price+'€</p>';
-
-			//Afficher commentaires (droite)
-			//SI connecté : affichage note perso
-
+			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-globe"> Pays</i> : '+info.country+' - '+info.region+'</p>';
+			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-calendar-alt"> Année</i> : '+info.year+'</p>';
+			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-wine-glass-alt"> Quantité</i> : '+info.capacity+'cl</p>';
+			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-info-circle"> Couleur</i> : '+info.color+'</p>';
+			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-tags"> Prix</i> : '+info.price+'€</p>';
+			displayLikes(id);
+			
+			
+			
 		} else {
 			console.log('Bad status: '+this);
 		}
@@ -162,6 +194,48 @@ function displayInfo(id){
 	xhr.open('get','http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/'+id);
 	xhr.send(null);
 
+}
+
+/*
+ * Affichage du nombre de likes associé à un vin
+ * @param : id du vin sélectionné
+*/
+function displayLikes(id){
+	let xhr = new XMLHttpRequest();
+	xhr.onload = function(){
+		if(xhr.status === 200) {
+			let likes = JSON.parse(this.responseText);
+			//console.log(likes);
+			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-thumbs-up"> Like(s)</i> : '+likes.total+'<button type="button" style="margin:15px;" class="btn btn-danger">J\'aime</button></p>';
+		}
+	}
+	xhr.open('get','http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/'+id+'/likes-count',true);
+	xhr.send(null);
+}
+
+/* Affichage des commentaires associé à un vin
+ *
+ * @param : id du vin sélectionné
+ *
+*/
+function displayComments(id) {
+	// créer une variable qui correspond à l'ID du vin
+	let xhr = new XMLHttpRequest();
+	xhr.onload = function () {
+		if(this.status === 200) {
+			let commentaires = JSON.parse(this.responseText);
+			let div = document.querySelector('#commentaires .list-group');
+			div.innerHTML = "";
+			for(let comment of commentaires){
+				//console.log(comment.content);
+				div.innerHTML += '<a href="#" class="list-group-item list-group-item-action " aria-current="true"><div class="d-flex w-100 justify-content-between"><small>Modifier</small></div><p class="mb-1">'+comment.content+'</p><small>Utilisateur: '+comment.user_id+'</small></a>';	
+			}
+			
+		}
+	}
+	xhr.open('get','http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/'+id+'/comments',true);
+	xhr.send(null);
+	
 }
 
 /* Affiche l'image du vin séléctionné
@@ -173,26 +247,21 @@ function displayImages(id,picture,name){
 	let xhr = new XMLHttpRequest();
 	let pictures = [picture];
 	xhr.onload = function(){
-		console.log(pictures);
+		//console.log(pictures);
 		if (this.status==200){
 			let images = JSON.parse(this.responseText);
 		
-			//Ajouter images dans pictures si il y'en a 
+			//todo : Ajouter images dans pictures si il y'en a 
 			//Boucle de pictures
 			let contenuDiapo = "";
 			for(let carousel of pictures){
-				console.log(carousel);
+				//console.log(carousel);
 				contenuDiapo += '<div class="carousel-item active"><img src="img/'+carousel+'" class="d-block w-100" alt="'+name+'"></div>';
 			} 
 			let inner_Carousel = document.querySelector('#carousel');
 			inner_Carousel.innerHTML = contenuDiapo;
 
-			console.log(images);
-			//Afficher toutes les images
-			//Afficher description
-			//Afficher commentaires (droite)
-			//SI connecté : affichage note perso
-
+			showCenter();
 		} else {
 			console.log('Bad status: '+this);
 		}
@@ -216,25 +285,29 @@ function checkLogin() {
 			//Username ET Mdp acceptés : login
 			user = username.value;
 			console.log('logged in');
-			//CHANGED : AJOUT DES 2 LIGNES SUIVANTES
 			username.value = '';
 			password.value = '';
 			//MODIFICATION DU DOM APRES CONNEXION
 			frm.style.display = 'none';
+			displayAllWines();
+			
 			//Création du bouton de déconnexion
 			let button = document.createElement('button');
 			button.innerHTML = 'Se déconnecter';
+			button.classList.add('btn');
+			button.classList.add('btn-outline-primary');
 			
 			//Déconnexion via bouton
 			button.addEventListener('click', function() {
 				user = null;
-				//button.style.display = 'none'; CHANGED : RETIRER CETTE LIGNE ET METTRE LA SUIVANTE
 				this.remove();
 				frm.style.display = 'block';
+				displayAllWines();
 				console.log('logged out');
 			});
 			let header = document.querySelector('header');
 			header.appendChild(button);		
+				
 		}
 	} else {
 	//Pas trouvé d'utilisateur correspondant
@@ -260,7 +333,7 @@ function addFilterCategories(liste, category) {
 	years.sort();
 	let select_year = document.querySelector('#'+category);
 	let nom = category=='year' ? 'Année' : 'Pays';
-	console.log(nom);
+	//console.log(nom);
 	let option = '<option disabled selected hidden>'+nom+'</option>';
 	for(let year of years){
 		option += '<option>'+year+'</option>';
@@ -269,7 +342,43 @@ function addFilterCategories(liste, category) {
 	
 }
 
+//Fonction filtre par mots-clé
+function checkKeyWord(){
+	let motCle = keyWordInput.value;
+	
+	let xhr = new XMLHttpRequest();
+	xhr.onload = function(){
+		if (this.status==200){
+			let vins = JSON.parse(this.responseText);
+			displayWines(vins);
+			
+		}
+		keyWordInput.value = "";
+	}
+	xhr.open("GET","http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/search?keyword="+motCle);
+	xhr.send();
 
+};
+
+function scrollToTop() {
+	$(window).scrollTop(0);
+}
+
+/*
+ * Fonction qui affiche la partie centre ou la cache
+ * @param show : si false la fonction cache le centre. Si true ou undefined, la fonction affiche le centre
+ */
+function showCenter(show = true){
+	if (show){
+		document.querySelector("#centre").style.display = "flex";
+		infoVin.style.display = 'flex';
+		comments.style.display = 'flex';
+	} else {
+		document.querySelector("#centre").style.display = "none";
+		infoVin.style.display = 'none';
+		comments.style.display = 'none';
+	}
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //EVENTLISTENERS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -308,7 +417,6 @@ btFilter.addEventListener("click",function(){
 		}*/
 	}
 	displayWines(vins_filtrer);
-
 	let optionYear = document.querySelector('#year option:first-of-type');
 	let optionCountry = document.querySelector('#country option:first-of-type');
 
@@ -321,25 +429,6 @@ btFilter.addEventListener("click",function(){
 
 
 //EVENTLISTENERS filtre par mots-clé
-
-function checkKeyWord(){
-	let value = keyWordInput.value;
-	
-	let xhr = new XMLHttpRequest();
-	xhr.onload = function(){
-		if (this.status==200){
-			let vins = JSON.parse(this.responseText);
-			console.log(value);
-			console.log(vins);
-			displayWines(vins);
-		}
-		keyWordInput.value = "";
-	}
-	xhr.open("GET","http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/search?keyword="+value);
-	xhr.send();
-
-};
-
 //Via clique souris
 btSearch.addEventListener("click",checkKeyWord);
 
@@ -350,6 +439,16 @@ keyWordInput.addEventListener('keyup', function(e) {
 		checkKeyWord();
 	}
 });	
+
+
+//EVENTLISTENERS POUR REINITIALISER LE CATALOGUE DES VINS
+
+let reset = document.querySelector(".resetDisplay");
+reset.addEventListener("click",function(){
+	displayAllWines();
+});
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //APPELS DE FONCTIONS

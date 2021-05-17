@@ -4,61 +4,72 @@
 <head>
     <meta charset="utf-8">
     <title>Caviste</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!--Favicon-->
+	<link rel="icon" type="image/png" href="IMG/logo/favicon.png" />
+	<!--CSS : Feuille de style principale-->
     <link rel="stylesheet" href="css/index.css">
+	<!--Police d'écriture : Google Font-->
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,500&display=swap" rel="stylesheet"> 
+	<!--Icone FontAwesome-->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
+	<!--Bootstrap V5.0.0-->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
+	<!--jQuery v3.5.1-->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<!--Anime.js-->
+	<script src="https://cdn.jsdelivr.net/npm/animejs@3.0.1/lib/anime.min.js"></script>
 </head>
 
 <body>
 	<header>
-		<img alt="logo" src=""/>
+		<img alt="logo" src="img/logo/logo_transparent.jpg"/>
 		<form id="connexion">
 			<input type="text" placeholder="Username" name="username" id="username" required>
 			<input type="password" placeholder="Password" name="password" id="password" required>
-			<button type="button" id="btLogin">Login</button>
+			<button class="btn btn-primary" type="submit" id="btLogin">Login</button>
 		</form>
 	</header>
 	
 		<div id="divJquery">
-			<h1>TITRE</h1>
+			<h1>MON CELLIER</h1>
 			<p>Cliquez sur le titre pour disparaître</p>
 		</div>
 	
 
 	
 	<section id="filtres">
-		<h2>Filtres</h2>		
+		<h2>Filtrez nos vins</h2>		
 		<div id="placement_form">
-			<form action="#" method="get">
+			<form action ="#" method="get">
 				<input id="keyWord" type="text" placeholder="Mots-clé">
-				<button type="button" id="btSearch">Rechercher</button>
+				<button class="btn btn-primary" type="submit" id="btSearch"><i class="fas fa-search"></i> Rechercher</button>
 			</form>
 
 			<form id="menu_deroulant" action="#" method="#">
-				<div>
-					<select name="country" id="country">
+					<select class="form-select" name="country" id="country">
 						<!-- option générer dynamiquement  -->
-						<option value="">pays</option>
 					</select>
-				</div>
-				<div>
-					<select name="year" id="year">
+					<select class="form-select" name="year" id="year">
 						<!-- option générer dynamiquement -->
-						
 					</select>
-				</div>
-				<button type="button" method="get" id="btFilter">Filtrer</button>
+					<button class="btn btn-primary " type="button" method="get" id="btFilter" ><i class="fas fa-filter"></i> Filtrer</button>
+				
+					<button id ="reset" class="btn btn-primary resetDisplay" type="reset"><i class="fas fa-redo-alt"></i> Réinitialiser</button>	
 			</form>
 		</div>
 		
 	</section>
 	
 	<section id="grilleVins">
+	<!-- Affichage dynamique des vins via : function displayWines(wineList) -->
 	</section>
 	
 	<section id="centre">
-		<h2>Centre </h2>
+		<!-- Images des vins masqués par défaut. 
+		Affichage des vins lorsque l'utilisateur clique sur une image -->
 		<div style="display:none">
 			<div class="card mb-3" style="max-width: 540px;">
 				<div class="row g-0">
@@ -84,7 +95,11 @@
 				</div>
 			  </div>
 		</div>
-		<div id="commentaires">
+		<!--Affichage dynamique des commentaires -->
+		<div id="commentaires" style="display:none">
+			<h2>Commentaires</h2>
+			<div class="list-group">
+			</div>
 		</div>
 	</section>
     
@@ -93,8 +108,9 @@
 	</section>
 	
 	<footer>
-		<h2>Footer</h2>
+		<i class="fas fa-3x fa-arrow-circle-up" style="color:darkred"onclick="scrollToTop()"></i>
 	</footer>
 	<script src="js/main.js"></script>
 </body>
+
 </html>
