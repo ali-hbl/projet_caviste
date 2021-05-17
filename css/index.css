@@ -153,12 +153,15 @@ section#centre{
 #commentaires div{
 	overflow-y:auto;
 	max-height:400px;
+	margin-bottom:10px;
 }
 
 #carouselExampleControls{
 	margin-top:10px;
 	
 }
+
+
 /***************************************************************CONNECTED*/
 section#connected{
 	height:200px;

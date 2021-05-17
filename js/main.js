@@ -38,32 +38,55 @@ let infoVin = document.querySelector("#centre div:first-of-type");
 const btFilter = document.querySelector('#btFilter');
 
 //Tableau des utilisateurs
-const users = [
-	'ced',
-	'bob',
-	'radad',
-	'adam',
-	'alain',
-	'amin',
-	'amine',
-	'angeline',
-	'badreddine',
-	'belkacem',
-	'gregory',
-	'ismail',
-	'appolinaire',
-	'kwasi',
-	'manuel',
-	'maxime',
-	'myriam',
-	'nathalie',
-	'mamadou',
-	'rachida',
-	'simon',
-	'thomas',
-	'youssef',
-	'nathan'
-];
+// const users = [
+	// 'ced',
+	// 'bob',
+	// 'radad',
+	// 'adam',
+	// 'alain',
+	// 'amin',
+	// 'amine',
+	// 'angeline',
+	// 'badreddine',
+	// 'belkacem',
+	// 'gregory',
+	// 'ismail',
+	// 'appolinaire',
+	// 'kwasi',
+	// 'manuel',
+	// 'maxime',
+	// 'myriam',
+	// 'nathalie',
+	// 'mamadou',
+	// 'rachida',
+	// 'simon',
+	// 'thomas',
+	// 'youssef',
+	// 'nathan'
+// ];
+
+let users = {
+	'ced': 1,
+	'bob': 2,
+	'mehdi': 25,
+	'youssef': 26,
+	'mamadou': 27,
+	'manuel': 28,
+	'alain': 29,
+	'alexandre': 30,
+	'fred': 31,
+	'ali': 32,
+	'angeline': 33,
+	'sylwester': 34,
+	'alessandro': 35,
+	'rachida': 35,
+	'badredddine': 37,
+	'amandine': 38,
+	'guilherme': 39,
+	'lauren': 40,
+	'ismail': 41,
+	'aboubacar': 42
+};
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,6 +163,7 @@ function createWineBloc(name,picture,id){
 			delay: 1000
 		});
 		displayInfo(id);
+		document.getElementById('recipient-name').value = id;
 		//console.log(infoVin);
 		
 
@@ -159,7 +183,6 @@ function displayInfo(id){
 	//Récupérer les infos générales du vin, disponibles dans wines déclaré en haut
 	let wineIndex  = null;
 	for(let index in wines){
-		console.log(wines[index].id, id);
 		if (parseInt(wines[index].id)==id){
 			wineIndex = index;
 		}
@@ -177,6 +200,7 @@ function displayInfo(id){
 	xhr.onload = function(){
 		if (this.status==200){
 			let info = JSON.parse(this.responseText)[0];
+			
 			divInfoVin.innerHTML = '<h5 class="card-title">'+info.name+'</h5><p class="card-text">'+info.description+'</p>';
 			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-globe"> Pays</i> : '+info.country+' - '+info.region+'</p>';
 			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-calendar-alt"> Année</i> : '+info.year+'</p>';
@@ -185,15 +209,12 @@ function displayInfo(id){
 			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-tags"> Prix</i> : '+info.price+'€</p>';
 			displayLikes(id);
 			
-			
-			
 		} else {
 			console.log('Bad status: '+this);
 		}
 	}
 	xhr.open('get','http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/'+id);
 	xhr.send(null);
-
 }
 
 /*
@@ -219,24 +240,91 @@ function displayLikes(id){
  *
 */
 function displayComments(id) {
+	let btComment = document.getElementById('btComment');
+	
 	// créer une variable qui correspond à l'ID du vin
 	let xhr = new XMLHttpRequest();
 	xhr.onload = function () {
 		if(this.status === 200) {
+			
+			//Bouton affiché ou non
+			if(user == null) {		
+				btComment.style.display = 'none';		
+			} else {
+				btComment.style.display = 'block';
+			};
+			
 			let commentaires = JSON.parse(this.responseText);
 			let div = document.querySelector('#commentaires .list-group');
 			div.innerHTML = "";
-			for(let comment of commentaires){
-				//console.log(comment.content);
-				div.innerHTML += '<a href="#" class="list-group-item list-group-item-action " aria-current="true"><div class="d-flex w-100 justify-content-between"><small>Modifier</small></div><p class="mb-1">'+comment.content+'</p><small>Utilisateur: '+comment.user_id+'</small></a>';	
-			}
 			
+			for(let comment of commentaires){
+				// console.log(comment);
+				if(user && comment.user_id == users[user]) {
+					// Chaine avec icones
+					div.innerHTML += '<span class="list-group-item list-group-item-action" aria-current="true"><div class="d-flex w-100 justify-content-between">'+comment.content+'<small><i class="fas fa-edit" onclick="editComment('+comment.id+', '+id+', \''+comment.content+'\')"></i> <i class="far fa-trash-alt" onclick="deleteComment('+comment.id+', '+id+')"></i></small></div></p><small>Utilisateur: '+comment.user_id+'</small></span>';
+				} else {
+					// Chaine sans icones
+					div.innerHTML += div.innerHTML += '<span class="list-group-item list-group-item-action" aria-current="true"><div class="d-flex w-100 justify-content-between">'+comment.content+'</div></p><small>Utilisateur: '+comment.user_id+'</small></span>';
+				};
+			}			
 		}
 	}
 	xhr.open('get','http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/'+id+'/comments',true);
-	xhr.send(null);
-	
+	xhr.send(null);	
 }
+
+
+/* Supression d'un commentaire posté
+ *
+ * @param : id du commentaire
+ *
+*/
+
+function deleteComment(commentId, wineId) {	
+	if(confirm('Voulez-vous supprimer ce commentaire?')) {
+		//Requête DELETE
+		let xhr = new XMLHttpRequest();
+		
+		xhr.onload = function () {
+			if(this.status === 200) {
+				displayComments(wineId);
+			}
+		}
+		xhr.open('delete','http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/'+wineId+'/comments/'+commentId,true);
+		xhr.setRequestHeader('Authorization', 'Basic '+btoa(user+':123'));
+		xhr.send(null);
+	};
+};
+
+/* Modification d'un commentaire posté
+ *
+ * @param : id du commentaire
+ *
+*/
+
+function editComment(commentId, wineId, currentComment) {
+	//Demande et récupère le commentaire modifié
+	let commentModif = prompt('Modifiez votre commentaire :', currentComment);
+	
+	//Vérification chaine vide ET bouton annulé
+	if(commentModif != '' && commentModif != null) {
+		// Requête PUT (modification)		
+		let data = { "content" : commentModif };
+		data = JSON.stringify(data);
+		
+		let xhr = new XMLHttpRequest();	
+		xhr.onload = function () {
+			if(this.status === 200) {
+				//Rafraîchis
+				displayComments(wineId);
+			}
+		}
+		xhr.open('put','http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/'+wineId+'/comments/'+commentId,true);
+		xhr.setRequestHeader('Authorization', 'Basic '+btoa(user+':123'));
+		xhr.send(data);		
+	}			
+};
 
 /* Affiche l'image du vin séléctionné
  * 
@@ -277,7 +365,7 @@ function displayImages(id,picture,name){
  */
 function checkLogin() {
 	//UTILISATEUR
-	if(users.indexOf(username.value) != -1) {
+	if(users[username.value] != undefined) {
 	//MOT DE PASSE
 		if(password.value != pwd) {
 			alert('Mot de passe invalide!');
@@ -320,7 +408,6 @@ function checkLogin() {
  *	
  */
 function addFilterCategories(liste, category) {
-
 	let years = [];
 	for(let key in liste){
 		
@@ -360,6 +447,7 @@ function checkKeyWord(){
 
 };
 
+//Revenir au début du site
 function scrollToTop() {
 	$(window).scrollTop(0);
 }
@@ -401,7 +489,6 @@ for(input of inputs) {
 //EVENTLISTENERS POUR FILTRAGE DES VINS
 btFilter.addEventListener("click",function(){
 	//Affichage des Vins selons les values obtenu
-	console.log(wines);
 	let valeurYear = document.querySelector('#year').value;
 	let valeurCountry = document.querySelector('#country').value;
 	let vins_filtrer = [];
@@ -422,9 +509,6 @@ btFilter.addEventListener("click",function(){
 
 	optionYear.selected = true;
 	optionCountry.selected = true;
-	
-
-
 });
 
 
@@ -442,13 +526,39 @@ keyWordInput.addEventListener('keyup', function(e) {
 
 
 //EVENTLISTENERS POUR REINITIALISER LE CATALOGUE DES VINS
-
 let reset = document.querySelector(".resetDisplay");
 reset.addEventListener("click",function(){
 	displayAllWines();
 });
 
-
+document.getElementById('addComment').addEventListener('click', function(){
+	if (user!=null){
+		//récupérer les valeurs entrées
+		let message = document.getElementById('message-text').value;
+		let wineId = document.getElementById('recipient-name').value;
+		
+		let data = { "content" : message };
+		data = JSON.stringify(data);
+		console.log(data);
+		//requete ajax
+		let xhr = new XMLHttpRequest();
+		xhr.onload = function(){
+			if (this.status==200){
+				displayComments(wineId);
+				$('.modal').modal('hide');
+			}
+			else {
+				console.log(this);
+			}
+		}
+		xhr.open("post","http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/"+wineId+"/comments");
+		xhr.setRequestHeader("Content-Type", "application/json");
+		xhr.setRequestHeader('Authorization', 'Basic '+btoa(user+':123'));
+		//TODO FAIRE L'Authorization DYNAMIQUEMENT
+		//xhr.setRequestHeader('Authorization', 'Basic '+btoa(user+':123'));
+		xhr.send(data);
+		}
+});
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //APPELS DE FONCTIONS
