@@ -164,9 +164,26 @@ section#centre{
 
 /***************************************************************CONNECTED*/
 section#connected{
-	height:200px;
-	background-color:black;
+	justify-content: flex-end
+	background-color:white;
 	color:white;
+}
+
+#divNotes {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	flex-direction: column;
+	background-color:white;
+	border: 1px solid lightgrey;
+	color: black;
+	border-radius: 2px;	
+	padding: 10px;
+	width: 100%;
+}
+
+#divNotes .btn-primary {
+	margin: 5px;
 }
 
 /***************************************************************FOOTER*/

@@ -26,6 +26,7 @@ let user = null;
 let pwd = 123;
 
 let comments = document.querySelector("#commentaires");
+let divUtilisateur = document.getElementById('connected');	
 
 //Afficher description
 let divInfoVin = document.querySelector('#infoVin');
@@ -192,8 +193,9 @@ function displayInfo(id){
 	displayImages(id,wineInfo.picture,wineInfo.name);
 	//Afficher tous les commentaires
 	displayComments(id);
-	
-	//todo : SI connecté : affichage note perso
+	// SI connecté : affichage note perso
+	displayNotePerso(id);
+
 	
 	//afficher la description et likes
 	let xhr = new XMLHttpRequest();
@@ -226,13 +228,46 @@ function displayLikes(id){
 	xhr.onload = function(){
 		if(xhr.status === 200) {
 			let likes = JSON.parse(this.responseText);
-			//console.log(likes);
-			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-thumbs-up"> Like(s)</i> : '+likes.total+'<button type="button" style="margin:15px;" class="btn btn-danger">J\'aime</button></p>';
-		}
+			
+			if (user==null) {
+				divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-thumbs-up"> Like(s)</i> : '+likes.total+'</p>';
+		
+			} else {
+				divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-thumbs-up"> Like(s)</i> : <span id="afficheLikes">'+likes.total+'</span><button id="btnLike" type="button" style="margin:15px;" class="btn btn-danger">J\'aime</button></p>';
+				let btn = document.querySelector("#btnLike");
+				let afficheLikes = document.querySelector("#afficheLikes");
+				let nbLikes = null;
+				btn.addEventListener('click',function(){
+	
+				let like = { "like" : true}; // ceci est un objet OR l'api a besoin de recevoir les données en JSON
+				like = JSON.stringify(like); // Convertir les données en JSON
+				let xhr = new XMLHttpRequest(); // Requete AJAX
+				xhr.onload = function () {
+					if(this.status === 200) {
+						nbLikes = (parseInt(afficheLikes.textContent));
+						nbLikes +=1;
+						afficheLikes.innerHTML = nbLikes;
+						console.log(this);
+					}
+				}
+
+				xhr.open('put','http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/'+id+'/like',true);
+				xhr.setRequestHeader('Authorization', 'Basic '+btoa(user+':123')); 
+				xhr.send(like);
+
+				});
+			}
+		}	
 	}
 	xhr.open('get','http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/'+id+'/likes-count',true);
 	xhr.send(null);
 }
+
+/* Ajout de "Like" pour un vin 
+*
+* @param : id du vin "Liké"
+*
+*/
 
 /* Affichage des commentaires associé à un vin
  *
@@ -255,6 +290,7 @@ function displayComments(id) {
 			};
 			
 			let commentaires = JSON.parse(this.responseText);
+			console.log(commentaires);
 			let div = document.querySelector('#commentaires .list-group');
 			div.innerHTML = "";
 			
@@ -265,7 +301,9 @@ function displayComments(id) {
 					div.innerHTML += '<span class="list-group-item list-group-item-action" aria-current="true"><div class="d-flex w-100 justify-content-between">'+comment.content+'<small><i class="fas fa-edit" onclick="editComment('+comment.id+', '+id+', \''+comment.content+'\')"></i> <i class="far fa-trash-alt" onclick="deleteComment('+comment.id+', '+id+')"></i></small></div></p><small>Utilisateur: '+comment.user_id+'</small></span>';
 				} else {
 					// Chaine sans icones
-					div.innerHTML += div.innerHTML += '<span class="list-group-item list-group-item-action" aria-current="true"><div class="d-flex w-100 justify-content-between">'+comment.content+'</div></p><small>Utilisateur: '+comment.user_id+'</small></span>';
+					//AJOUTÉ 17.05 la ligne ci dessous, et commenté celle d'apres. Il y avait un double +=
+					div.innerHTML += '<span class="list-group-item list-group-item-action" aria-current="true"><div class="d-flex w-100 justify-content-between">'+comment.content+'</div></p><small>Utilisateur: '+comment.user_id+'</small></span>';
+					//div.innerHTML += += '<span class="list-group-item list-group-item-action" aria-current="true"><div class="d-flex w-100 justify-content-between">'+comment.content+'</div></p><small>Utilisateur: '+comment.user_id+'</small></span>';
 				};
 			}			
 		}
@@ -344,7 +382,7 @@ function displayImages(id,picture,name){
 			let contenuDiapo = "";
 			for(let carousel of pictures){
 				//console.log(carousel);
-				contenuDiapo += '<div class="carousel-item active"><img src="img/'+carousel+'" class="d-block w-100" alt="'+name+'"></div>';
+				contenuDiapo += '<div class="carousel-item active"><img src="pics/'+carousel+'" class="d-block w-100" alt="'+name+'"></div>';
 			} 
 			let inner_Carousel = document.querySelector('#carousel');
 			inner_Carousel.innerHTML = contenuDiapo;
@@ -364,7 +402,7 @@ function displayImages(id,picture,name){
  *	Connecte l'utilisateur si login et mdp validés
  */
 function checkLogin() {
-	//UTILISATEUR
+	//UTILISATEUR	
 	if(users[username.value] != undefined) {
 	//MOT DE PASSE
 		if(password.value != pwd) {
@@ -379,6 +417,15 @@ function checkLogin() {
 			frm.style.display = 'none';
 			displayAllWines();
 			
+			/* TODO Ajout du bouton like lorsqu'il est connecté
+			if(displayInfo(id)) {
+				let btn = document.createElement("bouton");
+				let paraCards = document.getElementsByClassName("card-text");
+				paraCards[6].appendChild(btn);
+			}
+			*/
+			//<p class="card-text"><i class="fas fa-thumbs-up"> Like(s)</i> :
+			
 			//Création du bouton de déconnexion
 			let button = document.createElement('button');
 			button.innerHTML = 'Se déconnecter';
@@ -391,11 +438,12 @@ function checkLogin() {
 				this.remove();
 				frm.style.display = 'block';
 				displayAllWines();
-				console.log('logged out');
-			});
+				console.log('logged out');			
+				divUtilisateur.style.display = 'none';		
+			});			
+			
 			let header = document.querySelector('header');
 			header.appendChild(button);		
-				
 		}
 	} else {
 	//Pas trouvé d'utilisateur correspondant
@@ -461,10 +509,13 @@ function showCenter(show = true){
 		document.querySelector("#centre").style.display = "flex";
 		infoVin.style.display = 'flex';
 		comments.style.display = 'flex';
+		divUtilisateur.style.display = 'flex';
+		
 	} else {
 		document.querySelector("#centre").style.display = "none";
 		infoVin.style.display = 'none';
 		comments.style.display = 'none';
+		divUtilisateur.style.display = 'none';		
 	}
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -511,7 +562,6 @@ btFilter.addEventListener("click",function(){
 	optionCountry.selected = true;
 });
 
-
 //EVENTLISTENERS filtre par mots-clé
 //Via clique souris
 btSearch.addEventListener("click",checkKeyWord);
@@ -533,32 +583,95 @@ reset.addEventListener("click",function(){
 
 document.getElementById('addComment').addEventListener('click', function(){
 	if (user!=null){
+		
 		//récupérer les valeurs entrées
 		let message = document.getElementById('message-text').value;
 		let wineId = document.getElementById('recipient-name').value;
-		
-		let data = { "content" : message };
-		data = JSON.stringify(data);
-		console.log(data);
-		//requete ajax
-		let xhr = new XMLHttpRequest();
-		xhr.onload = function(){
-			if (this.status==200){
-				displayComments(wineId);
-				$('.modal').modal('hide');
+		if(message != '' && message != null) {	//AJOUTÉ 17.05
+			//vider le champ du formulaire
+			document.getElementById('message-text').value = ''; //AJOUTÉ 17.05
+			let data = { "content" : message };
+			data = JSON.stringify(data);
+			console.log(data);
+			//requete ajax
+			let xhr = new XMLHttpRequest();
+			xhr.onload = function(){
+				if (this.status==200){
+					displayComments(wineId);
+					$('.modal').modal('hide');
+				}
+				else {
+					console.log(this);
+				}
 			}
-			else {
-				console.log(this);
-			}
+			xhr.open("post","http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/"+wineId+"/comments");
+			xhr.setRequestHeader("Content-Type", "application/json");
+			xhr.setRequestHeader('Authorization', 'Basic '+btoa(user+':123'));
+			xhr.send(data);
 		}
-		xhr.open("post","http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/"+wineId+"/comments");
-		xhr.setRequestHeader("Content-Type", "application/json");
-		xhr.setRequestHeader('Authorization', 'Basic '+btoa(user+':123'));
-		//TODO FAIRE L'Authorization DYNAMIQUEMENT
-		//xhr.setRequestHeader('Authorization', 'Basic '+btoa(user+':123'));
-		xhr.send(data);
-		}
+	}
 });
+
+//PARTIE NOTES PERSONNELLES
+function displayNotePerso(id, note = null) {
+	let divNotes = document.getElementById('divNotes');
+	divNotes.innerHTML = "";
+	
+	let defaultMessage = "Vous n'avez pas de note personnelle pour ce vin.";
+	
+	let header = document.createElement('h4');
+	header.textContent = "Note personnelle pour ce vin:";
+	
+	let pNote = document.createElement('p');
+	let btnNote = document.createElement('button');
+	btnNote.classList.add('btn', 'btn-primary');
+	
+	let possedeNote = false;
+		
+	divNotes.appendChild(header);
+	divNotes.appendChild(pNote);
+	divNotes.appendChild(btnNote);
+	
+	if(note != null || possedeNote) {
+		if(possedeNote) {
+			//TODO : REQUETE AJAX POUR RECUPERER LES NOTES
+			// pNote = 
+		} else {
+			pNote.innerHTML = note;			
+		}
+		
+		// Si il y a une note :
+		btnNote.innerHTML = "Modifier la note";
+		
+		let btnDelete = document.createElement('button');		//Création du bouton de suppression
+		btnDelete.classList.add('btn', 'btn-primary');
+		
+		btnDelete.innerHTML = "Supprimer la note";
+		divNotes.appendChild(btnDelete);
+		
+		//EVENTLISTENERS POUR SUPPRIMER UNE NOTE
+		btnDelete.addEventListener('click', function() {
+			//TODO : Supression de la note (Requête AJAX) :
+			
+			//Met l'affichage à jour
+			if(confirm('Voulez-vous supprimer cette note?')) {
+				displayNotePerso(id);
+			}			
+		});
+		
+	} else {
+		// Sinon afficher un message par défaut
+		pNote.textContent = defaultMessage;
+		btnNote.innerText = "Ajouter une note";
+	}
+	
+	//EVENTLISTENERS POUR RAJOUTER UNE NOTE
+	btnNote.addEventListener('click', function() {
+		//Bouton AJOUTER une note génère un prompt 
+		let notePerso = prompt('Votre note personnelle concernant ce vin :');
+		displayNotePerso(id, notePerso);
+	});
+};
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //APPELS DE FONCTIONS
