@@ -133,6 +133,15 @@ section#grilleVins{
 	width:auto;
 	height:auto;
 }
+
+#masquerImg{
+	text-align:center;
+	background-color:darkRed;
+	color:white;
+	margin:0px;
+	display:block;
+	width:100%;
+}
 /***************************************************************CENTRE*/
 section#centre{
 	display:flex;
@@ -184,7 +193,7 @@ section#connected{
 
 #divNotes .btn-primary {
 	margin: 5px;
-}
+}	
 
 /***************************************************************FOOTER*/
 footer{

@@ -32,9 +32,9 @@
 		</form>
 	</header>
 	
-		<div id="divJquery">
+		<div >
 			<h1>MON CELLIER</h1>
-			<p>Cliquez sur le titre pour disparaître</p>
+			
 		</div>
 	
 
@@ -42,19 +42,19 @@
 	<section id="filtres">
 		<h2>Filtrez nos vins</h2>		
 		<div id="placement_form">
-			<form action ="#" method="get">
+			<form action ="#" method="get" onsubmit="return false">
 				<input id="keyWord" type="text" placeholder="Mots-clé">
-				<button class="btn btn-primary" type="submit" id="btSearch"><i class="fas fa-search"></i> Rechercher</button>
+				<button class="btn btn-primary" type="button" id="btSearch"><i class="fas fa-search"></i> Rechercher</button>
 			</form>
 
-			<form id="menu_deroulant" action="#" method="#">
+			<form id="menu_deroulant" action="#" method="get" onsubmit="return false">
 					<select class="form-select" name="country" id="country">
 						<!-- option générer dynamiquement  -->
 					</select>
 					<select class="form-select" name="year" id="year">
 						<!-- option générer dynamiquement -->
 					</select>
-					<button class="btn btn-primary " type="button" method="get" id="btFilter" ><i class="fas fa-filter"></i> Filtrer</button>
+					<button class="btn btn-primary " type="button"  id="btFilter" ><i class="fas fa-filter"></i> Filtrer</button>
 				
 					<button id ="reset" class="btn btn-primary resetDisplay" type="reset"><i class="fas fa-redo-alt"></i> Réinitialiser</button>	
 			</form>
@@ -108,7 +108,7 @@
 	</section>
 	
 	<footer>
-		<i class="fas fa-3x fa-arrow-circle-up" style="color:darkred"onclick="scrollToTop()"></i>
+		<i class="fas fa-3x fa-arrow-circle-up" style="color:darkred; cursor: pointer;" onclick="scrollToTop()"></i>
 	</footer>
 	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	  <div class="modal-dialog">
@@ -131,7 +131,7 @@
 		  </div>
 		  <div class="modal-footer">
 			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-			<button id="addComment"type="button" class="btn btn-primary" >Valider</button>
+			<button id="addComment" type="button" class="btn btn-primary" >Valider</button>
 		  </div>
 		</div>
 	  </div>

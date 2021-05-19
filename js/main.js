@@ -2,13 +2,7 @@
 //JQUERY
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-$(document).ready(function(){
-	$("#divJquery").click(function(){
-	  $("p").animate({
-		height: 'toggle'
-	  });
-	});
-  });
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Déclaration variables, constantes
@@ -40,32 +34,6 @@ let infoVin = document.querySelector("#centre div:first-of-type");
 const btFilter = document.querySelector('#btFilter');
 
 //Tableau des utilisateurs
-// const users = [
-	// 'ced',
-	// 'bob',
-	// 'radad',
-	// 'adam',
-	// 'alain',
-	// 'amin',
-	// 'amine',
-	// 'angeline',
-	// 'badreddine',
-	// 'belkacem',
-	// 'gregory',
-	// 'ismail',
-	// 'appolinaire',
-	// 'kwasi',
-	// 'manuel',
-	// 'maxime',
-	// 'myriam',
-	// 'nathalie',
-	// 'mamadou',
-	// 'rachida',
-	// 'simon',
-	// 'thomas',
-	// 'youssef',
-	// 'nathan'
-// ];
 
 let users = {
 	'ced': 1,
@@ -127,8 +95,16 @@ function displayWines(wineList){
 		grilleVins.innerHTML ="<p style='color:white;'>Aucun vin trouvé...</p>";
 		return;
 	}
-
-	grilleVins.innerHTML ="";
+	
+	//JQUERY
+	grilleVins.innerHTML = '<p id="masquerImg" >Cliquez ici pour masquer les images</p>';
+	$("#masquerImg").click(function(){
+	  $("#grilleVins span img").animate({
+		height: 'toggle'
+	  });
+	  $(this).html( $(this).html() == 'Cliquez ici pour afficher les images' ? 'Cliquez ici pour masquer les images':'Cliquez ici pour afficher les images');
+	});
+  
 	for (key in wineList){
 		let wine = wineList[key];
 		let bloc = createWineBloc(wine.name,wine.picture,wine.id);
@@ -166,7 +142,7 @@ function createWineBloc(name,picture,id){
 		});
 		displayInfo(id);
 		document.getElementById('recipient-name').value = id;
-		//console.log(infoVin);
+	//console.log(infoVin);
 		
 
 	})
@@ -180,7 +156,9 @@ function createWineBloc(name,picture,id){
  * 
  *  
  */
-function displayInfo(id){	
+ 
+function displayInfo(id){
+	
 	//Récupérer les infos générales du vin, disponibles dans wines déclaré en haut
 	let wineIndex  = null;
 	for(let index in wines){
@@ -193,24 +171,37 @@ function displayInfo(id){
 	displayImages(id,wineInfo.picture,wineInfo.name);
 	//Afficher tous les commentaires
 	displayComments(id);
+	//Afficher notes perso si connecté
 	if(user) {
-		// SI connecté : affichage note perso
 		displayNotePerso(id);
 	}
-
 	
 	//afficher la description et likes
 	let xhr = new XMLHttpRequest();
 	xhr.onload = function(){
 		if (this.status==200){
-			let info = JSON.parse(this.responseText)[0];
 			
-			divInfoVin.innerHTML = '<h5 class="card-title">'+info.name+'</h5><p class="card-text">'+info.description+'</p>';
-			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-globe"> Pays</i> : '+info.country+' - '+info.region+'</p>';
-			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-calendar-alt"> Année</i> : '+info.year+'</p>';
-			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-wine-glass-alt"> Quantité</i> : '+info.capacity+'cl</p>';
-			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-info-circle"> Couleur</i> : '+info.color+'</p>';
-			divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-tags"> Prix</i> : '+info.price+'€</p>';
+			let info = JSON.parse(this.responseText)[0];
+			divInfoVin.innerHTML = '<h5 class="card-title">'+info.name+'</h5><p id ="affichePlus" class="card-text">'+info.description.substring(0,42)+'...</p>';
+			let descriptionComplete = info.description;
+			//bouton pour afficher 'en savoir plus'
+			let btAffiche = document.createElement('BUTTON');
+			btAffiche.classList.add('btn', 'btn-outline-primary');
+			btAffiche.innerHTML = 'En savoir plus';
+			btAffiche.type = 'button';
+			btAffiche.addEventListener('click', function(){
+				console.log('clicked');
+				document.querySelector("#affichePlus").innerHTML = descriptionComplete;
+				$(this).hide();
+			});
+			divInfoVin.appendChild(btAffiche);
+			
+			divInfoVin.appendChild(document.createRange().createContextualFragment('<p class="card-text"><i class="fas fa-globe"> Pays</i> : '+info.country+' - '+info.region+'</p>'));
+			divInfoVin.appendChild(document.createRange().createContextualFragment('<p class="card-text"><i class="fas fa-calendar-alt"> Année</i> : '+info.year+'</p>'));
+			divInfoVin.appendChild(document.createRange().createContextualFragment('<p class="card-text"><i class="fas fa-wine-glass-alt"> Quantité</i> : '+info.capacity+'cl</p>'));
+			divInfoVin.appendChild(document.createRange().createContextualFragment('<p class="card-text"><i class="fas fa-info-circle"> Couleur</i> : '+info.color+'</p>'));
+			divInfoVin.appendChild(document.createRange().createContextualFragment('<p class="card-text"><i class="fas fa-tags"> Prix</i> : '+info.price+'€</p>'));
+			
 			displayLikes(id);
 			
 		} else {
@@ -219,6 +210,72 @@ function displayInfo(id){
 	}
 	xhr.open('get','http://cruth.phpnet.org/epfc/caviste/public/index.php/api/wines/'+id);
 	xhr.send(null);
+
+}
+
+/*
+ * Affiche la note perso de l'utilisateur 
+ *
+ * @param : void 
+ *	
+*/
+function displayNotePerso(id, note = null) {
+	divNotes.innerHTML = "";
+	
+	let defaultMessage = "Vous n'avez pas de note personnelle pour ce vin.";
+	
+	let header = document.createElement('h4');
+	header.textContent = "Note personnelle pour ce vin:";
+	
+	let pNote = document.createElement('p');
+	let btnNote = document.createElement('button');
+	btnNote.classList.add('btn', 'btn-primary');
+	
+	let possedeNote = false;
+		
+	divNotes.appendChild(header);
+	divNotes.appendChild(pNote);
+	divNotes.appendChild(btnNote);
+	
+	if(note != null || possedeNote) {
+		if(possedeNote) {
+			//TODO : REQUETE AJAX POUR RECUPERER LES NOTES
+			// pNote = 
+		} else {
+			pNote.innerHTML = note;			
+		}
+		
+		// Si il y a une note :
+		btnNote.innerHTML = "Modifier la note";
+		
+		let btnDelete = document.createElement('button');		//Création du bouton de suppression
+		btnDelete.classList.add('btn', 'btn-primary');
+		
+		btnDelete.innerHTML = "Supprimer la note";
+		divNotes.appendChild(btnDelete);
+		
+		//EVENTLISTENERS POUR SUPPRIMER UNE NOTE
+		btnDelete.addEventListener('click', function() {
+			//TODO : Supression de la note (Requête AJAX) :
+			
+			//Met l'affichage à jour
+			if(confirm('Voulez-vous supprimer cette note?')) {
+				displayNotePerso(id);
+			}			
+		});
+		
+	} else {
+		// Sinon afficher un message par défaut
+		pNote.textContent = defaultMessage;
+		btnNote.innerText = "Ajouter une note";
+	}
+	
+	//EVENTLISTENERS POUR RAJOUTER UNE NOTE
+	btnNote.addEventListener('click', function() {
+		//Bouton AJOUTER une note génère un prompt 
+		let notePerso = prompt('Votre note personnelle concernant ce vin :');
+		displayNotePerso(id, notePerso);
+	});
 }
 
 /*
@@ -232,10 +289,10 @@ function displayLikes(id){
 			let likes = JSON.parse(this.responseText);
 			
 			if (user==null) {
-				divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-thumbs-up"> Like(s)</i> : '+likes.total+'</p>';
+				divInfoVin.appendChild(document.createRange().createContextualFragment('<p class="card-text"><i class="fas fa-thumbs-up"> Like(s)</i> : '+likes.total+'</p>'));
 		
 			} else {
-				divInfoVin.innerHTML += '<p class="card-text"><i class="fas fa-thumbs-up"> Like(s)</i> : <span id="afficheLikes">'+likes.total+'</span><button id="btnLike" type="button" style="margin:15px;" class="btn btn-danger">J\'aime</button></p>';
+				divInfoVin.appendChild(document.createRange().createContextualFragment('<p class="card-text"><i class="fas fa-thumbs-up"> Like(s)</i> : <span id="afficheLikes">'+likes.total+'</span><button id="btnLike" type="button" style="margin:15px;" class="btn btn-danger">J\'aime</button></p>'));
 				let btn = document.querySelector("#btnLike");
 				let afficheLikes = document.querySelector("#afficheLikes");
 				let nbLikes = null;
@@ -247,9 +304,17 @@ function displayLikes(id){
 				xhr.onload = function () {
 					if(this.status === 200) {
 						nbLikes = (parseInt(afficheLikes.textContent));
-						nbLikes +=1;
-						afficheLikes.innerHTML = nbLikes;
-						console.log(this);
+						let validateLike = JSON.parse(this.response); 
+						if(validateLike.success){
+							nbLikes +=1;
+							afficheLikes.innerHTML = nbLikes;
+						} else {
+							alert (validateLike.error);
+							/*("<div class='alert alert-danger d-flex align-items-center' role='alert'>\
+							<svg class='bi flex-shrink-0 me-2' width='24' height='24' role='img' aria-label='Danger:'>\
+							<use xlink:href='#exclamation-triangle-fill'/></svg><div>"+validateLike.error+"</div></div>");*/
+							//alert(); // TODO faire la boite d'alerte en Bootstrap 
+						};
 					}
 				}
 
@@ -384,7 +449,7 @@ function displayImages(id,picture,name){
 			let contenuDiapo = "";
 			for(let carousel of pictures){
 				//console.log(carousel);
-				contenuDiapo += '<div class="carousel-item active"><img src="pics/'+carousel+'" class="d-block w-100" alt="'+name+'"></div>';
+				contenuDiapo += '<div class="carousel-item active"><img src="img/'+carousel+'" class="d-block w-100" alt="'+name+'"></div>';
 			} 
 			let inner_Carousel = document.querySelector('#carousel');
 			inner_Carousel.innerHTML = contenuDiapo;
@@ -404,7 +469,7 @@ function displayImages(id,picture,name){
  *	Connecte l'utilisateur si login et mdp validés
  */
 function checkLogin() {
-	//UTILISATEUR	
+	//UTILISATEUR
 	if(users[username.value] != undefined) {
 	//MOT DE PASSE
 		if(password.value != pwd) {
@@ -419,15 +484,6 @@ function checkLogin() {
 			frm.style.display = 'none';
 			displayAllWines();
 			
-			/* TODO Ajout du bouton like lorsqu'il est connecté
-			if(displayInfo(id)) {
-				let btn = document.createElement("bouton");
-				let paraCards = document.getElementsByClassName("card-text");
-				paraCards[6].appendChild(btn);
-			}
-			*/
-			//<p class="card-text"><i class="fas fa-thumbs-up"> Like(s)</i> :
-			
 			//Création du bouton de déconnexion
 			let button = document.createElement('button');
 			button.innerHTML = 'Se déconnecter';
@@ -440,10 +496,8 @@ function checkLogin() {
 				this.remove();
 				frm.style.display = 'block';
 				displayAllWines();
-				console.log('logged out');			
-				divUtilisateur.style.display = 'none';		
-			});			
-			
+				console.log('logged out');
+			});
 			let header = document.querySelector('header');
 			header.appendChild(button);		
 		}
@@ -568,6 +622,7 @@ btFilter.addEventListener("click",function(){
 	optionCountry.selected = true;
 });
 
+
 //EVENTLISTENERS filtre par mots-clé
 //Via clique souris
 btSearch.addEventListener("click",checkKeyWord);
@@ -618,68 +673,19 @@ document.getElementById('addComment').addEventListener('click', function(){
 	}
 });
 
-//PARTIE NOTES PERSONNELLES
-function displayNotePerso(id, note = null) {
-	divNotes.innerHTML = "";
-	
-	let defaultMessage = "Vous n'avez pas de note personnelle pour ce vin.";
-	
-	let header = document.createElement('h4');
-	header.textContent = "Note personnelle pour ce vin:";
-	
-	let pNote = document.createElement('p');
-	let btnNote = document.createElement('button');
-	btnNote.classList.add('btn', 'btn-primary');
-	
-	let possedeNote = false;
-		
-	divNotes.appendChild(header);
-	divNotes.appendChild(pNote);
-	divNotes.appendChild(btnNote);
-	
-	if(note != null || possedeNote) {
-		if(possedeNote) {
-			//TODO : REQUETE AJAX POUR RECUPERER LES NOTES
-			// pNote = 
-		} else {
-			pNote.innerHTML = note;			
-		}
-		
-		// Si il y a une note :
-		btnNote.innerHTML = "Modifier la note";
-		
-		let btnDelete = document.createElement('button');		//Création du bouton de suppression
-		btnDelete.classList.add('btn', 'btn-primary');
-		
-		btnDelete.innerHTML = "Supprimer la note";
-		divNotes.appendChild(btnDelete);
-		
-		//EVENTLISTENERS POUR SUPPRIMER UNE NOTE
-		btnDelete.addEventListener('click', function() {
-			//TODO : Supression de la note (Requête AJAX) :
-			
-			//Met l'affichage à jour
-			if(confirm('Voulez-vous supprimer cette note?')) {
-				displayNotePerso(id);
-			}			
-		});
-		
-	} else {
-		// Sinon afficher un message par défaut
-		pNote.textContent = defaultMessage;
-		btnNote.innerText = "Ajouter une note";
-	}
-	
-	//EVENTLISTENERS POUR RAJOUTER UNE NOTE
-	btnNote.addEventListener('click', function() {
-		//Bouton AJOUTER une note génère un prompt 
-		let notePerso = prompt('Votre note personnelle concernant ce vin :');
-		displayNotePerso(id, notePerso);
-	});
-};
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //APPELS DE FONCTIONS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 displayAllWines();
+//////////////////TEST
+
+/*
+$("#btnSavoirPlus").click(function(){
+  $("#affichePlus").hide(1000)({
+	  
+  });
+});
+*/
+
+
