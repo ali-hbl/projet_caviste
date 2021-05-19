@@ -27,6 +27,7 @@ let pwd = 123;
 
 let comments = document.querySelector("#commentaires");
 let divUtilisateur = document.getElementById('connected');	
+let divNotes = document.getElementById('divNotes');
 
 //Afficher description
 let divInfoVin = document.querySelector('#infoVin');
@@ -179,8 +180,7 @@ function createWineBloc(name,picture,id){
  * 
  *  
  */
-function displayInfo(id){
-	
+function displayInfo(id){	
 	//Récupérer les infos générales du vin, disponibles dans wines déclaré en haut
 	let wineIndex  = null;
 	for(let index in wines){
@@ -193,8 +193,10 @@ function displayInfo(id){
 	displayImages(id,wineInfo.picture,wineInfo.name);
 	//Afficher tous les commentaires
 	displayComments(id);
-	// SI connecté : affichage note perso
-	displayNotePerso(id);
+	if(user) {
+		// SI connecté : affichage note perso
+		displayNotePerso(id);
+	}
 
 	
 	//afficher la description et likes
@@ -505,17 +507,21 @@ function scrollToTop() {
  * @param show : si false la fonction cache le centre. Si true ou undefined, la fonction affiche le centre
  */
 function showCenter(show = true){
-	if (show){
+	if(show){
 		document.querySelector("#centre").style.display = "flex";
 		infoVin.style.display = 'flex';
 		comments.style.display = 'flex';
-		divUtilisateur.style.display = 'flex';
+		if(user) {
+			divUtilisateur.style.display = 'flex';
+			divNotes.style.display = 'flex';
+		}
 		
 	} else {
 		document.querySelector("#centre").style.display = "none";
 		infoVin.style.display = 'none';
 		comments.style.display = 'none';
-		divUtilisateur.style.display = 'none';		
+		divUtilisateur.style.display = 'none';			
+		divNotes.style.display = 'none';
 	}
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -614,7 +620,6 @@ document.getElementById('addComment').addEventListener('click', function(){
 
 //PARTIE NOTES PERSONNELLES
 function displayNotePerso(id, note = null) {
-	let divNotes = document.getElementById('divNotes');
 	divNotes.innerHTML = "";
 	
 	let defaultMessage = "Vous n'avez pas de note personnelle pour ce vin.";
