@@ -1,44 +1,49 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="utf-8">
     <title>Caviste</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
 	<!--Favicon-->
 	<link rel="icon" type="image/png" href="IMG/logo/favicon.png" />
+	
 	<!--CSS : Feuille de style principale-->
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/style.css">
+	
 	<!--Police d'écriture : Google Font-->
 	<link rel="preconnect" href="https://fonts.gstatic.com">
 	<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,500&display=swap" rel="stylesheet"> 
+	
 	<!--Icone FontAwesome-->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
-	<!--Bootstrap V5.0.0-->
+	
+	<!--CSS : Bootstrap V5.0.0-->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+	
 	<!--jQuery v3.5.1-->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	
 	<!--Anime.js-->
 	<script src="https://cdn.jsdelivr.net/npm/animejs@3.0.1/lib/anime.min.js"></script>
 </head>
 
+<!--Début du document -->
 <body>
 	<header>
 		<img alt="logo" src="img/logo/logo_transparent.jpg"/>
+		
+		<!--Formulaire d'identification. Fonction JS associée : checkLogin() -->
 		<form id="connexion">
-			<input type="text" placeholder="Username" name="username" id="username" required>
-			<input type="password" placeholder="Password" name="password" id="password" required>
+			<input type="text" placeholder="Identifiant" name="username" id="username" required>
+			<input type="password" placeholder="Mot de passe" name="password" id="password" required>
 			<button class="btn btn-primary" type="button" id="btLogin">Login</button>
 		</form>
 	</header>
 	
-		<div >
-			<h1>MON CELLIER</h1>
-			
-		</div>
+	<h1 id="titre">Mon Cellier</h1>
 	
-
-	
+	<!--Section de Filtre des vins. Fonction JS associées : addFilterCategories() & checkKeyWord ()-->	
 	<section id="filtres">
 		<h2>Filtrez nos vins</h2>		
 		<div id="placement_form">
@@ -59,23 +64,22 @@
 					<button id ="reset" class="btn btn-primary resetDisplay" type="reset"><i class="fas fa-redo-alt"></i> Réinitialiser</button>	
 			</form>
 		</div>
-		
 	</section>
 	
+	<!-- Affichage des vins : Fonction JS associée : displayWines() -->
 	<section id="grilleVins">
-	<!-- Affichage dynamique des vins via : function displayWines(wineList) -->
 	</section>
 	
+	<!-- Images des vins masqués par défaut. 
+	Affichage des vins lorsque l'utilisateur clique sur une image : Fonction JS associée : createWineBloc() -->
 	<section id="centre">
-		<!-- Images des vins masqués par défaut. 
-		Affichage des vins lorsque l'utilisateur clique sur une image -->
 		<div style="display:none">
 			<div class="card mb-3" >
 				<div class="row g-0">
 				  <div class="col-md-4">
 					<div id="carouselExampleControls" class="carousel carousel-dark slide" data-bs-ride="carousel" style="max-width: 300px;">
 						<div id="carousel" class="carousel-inner">
-							<!-- Images généré dynamiquement -->
+							<!-- Carousel d'image :  Fonction JS associée : displayImages ()-->
 						</div>
 						<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
 						  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -88,13 +92,15 @@
 					  </div>
 				  </div>
 				  <div class="col-md-8">
+				  <!--Desciption du vin et le nombre de mention "likes". Fonction JS associée : displayInfo() -->
 					<div id="infoVin" class="card-body">
 					</div>
 				  </div>
 				</div>
 			  </div>
 		</div>
-		<!--Affichage dynamique des commentaires -->
+		
+		<!--Affichage des commentaires. Fonction JS associée :  displayComments()-->
 		<div id="commentaires" style="display:none">
 			<h2>Commentaires</h2>
 			<div class="list-group">
@@ -103,13 +109,14 @@
 		</div>
 	</section>
     
+	<!--Notes personnelles : Authentification nécéssaire. 
+	Fonction JS associée : displayNotePerso() -->
 	<section id="connected" style="display:none">
 		<div id="divNotes" style="display:none"></div>
 	</section>
 	
-	<footer>
-		<i class="fas fa-3x fa-arrow-circle-up" style="color:darkred; cursor: pointer;" onclick="scrollToTop()"></i>
-	</footer>
+	<!--Popup pour l'ajout de commentaire(s) : Authentification nécéssaire. 
+	Fonction JS associées  :, editComment(), deleteComment() -->
 	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	  <div class="modal-dialog">
 		<div class="modal-content">
@@ -136,10 +143,18 @@
 		</div>
 	  </div>
 	</div>
+	
+	<!--Retour vers le haut de la page. Fonction JS associée : scrollToTop() -->
+	<footer>
+		<i class="fas fa-3x fa-arrow-circle-up" style="color:darkred; cursor: pointer;" onclick="scrollToTop()"></i>
+	</footer>
+	
+	<!--Script Main.js -->
 	<script src="js/main.js"></script>
-	<!--bootstrap script doit être inclu à la fin sinon certaines fonctionnalités ne fonctionnent pas -->
+	
+	<!--Script Bootstrap V5.0.0-->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
 
+<!-- Fin du document-->
 </body>
-
 </html>

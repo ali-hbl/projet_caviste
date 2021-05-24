@@ -16,6 +16,9 @@ h1,h2,h3,h4,h5,p {
 	font-family: 'Lora', serif;
 }
 
+h1#titre{
+	text-transform: uppercase; 
+}
 h2{
 	text-align:center;
 	margin:0px;
@@ -122,7 +125,7 @@ section#grilleVins{
 	text-align:center;
 	border: 2px solid transparent;
 	border-radius:3px;
-	flex : 0 0 20%; /*flex Grow/Flex Shrink/ Flex Basis*/
+	flex : 0 0 20%;
 }
 #grilleVins span:hover{
 	border: 2px solid black;
